@@ -11,7 +11,7 @@ import org.example.saadtechstore.Domain.Enum.Category;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.validator.constraints.NotBlank;
-import org.springframework.data.annotation.Id;
+import jakarta.persistence.Id;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
