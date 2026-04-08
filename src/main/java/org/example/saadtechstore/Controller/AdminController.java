@@ -11,31 +11,58 @@ import org.example.saadtechstore.Service.ProductService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.access.prepost.PreAuthorize;
-
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
 
 @RestController
 @RequestMapping("/api/admin")
 @RequiredArgsConstructor
-@PreAuthorize("hasRole('ADMIN')")
 public class AdminController {
 
     private final ProductService productService;
     private final OrderService orderService;
 
-    @PostMapping("/products")
+    // Accepte JSON pur (sans image)
+    @PostMapping(
+            value = "/products",
+            consumes = MediaType.APPLICATION_JSON_VALUE
+    )
     @ResponseStatus(HttpStatus.CREATED)
-    public ProductResponse createProduct(
+    public ProductResponse createProductJson(
+            @RequestBody @Valid ProductRequest req) {
+        return productService.create(req, null);
+    }
+
+    // Accepte multipart (avec image optionnelle)
+    @PostMapping(
+            value = "/products",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
+    )
+    @ResponseStatus(HttpStatus.CREATED)
+    public ProductResponse createProductMultipart(
             @RequestPart("product") @Valid ProductRequest req,
             @RequestPart(value = "image", required = false) MultipartFile image) {
         return productService.create(req, image);
     }
 
-    @PutMapping("/products/{id}")
-    public ProductResponse updateProduct(
+    // Accepte JSON pur (sans image)
+    @PutMapping(
+            value = "/products/{id}",
+            consumes = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ProductResponse updateProductJson(
+            @PathVariable String id,
+            @RequestBody @Valid ProductRequest req) {
+        return productService.update(id, req, null);
+    }
+
+    // Accepte multipart (avec image optionnelle)
+    @PutMapping(
+            value = "/products/{id}",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
+    )
+    public ProductResponse updateProductMultipart(
             @PathVariable String id,
             @RequestPart("product") @Valid ProductRequest req,
             @RequestPart(value = "image", required = false) MultipartFile image) {
