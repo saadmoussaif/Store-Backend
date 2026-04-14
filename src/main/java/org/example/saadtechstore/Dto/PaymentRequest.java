@@ -1,23 +1,19 @@
 package org.example.saadtechstore.Dto;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-
 import java.math.BigDecimal;
+import java.util.List;
 
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
 public class PaymentRequest {
-
-    @NotBlank
-    private String orderId;
-
-    @NotNull
     private BigDecimal amount;
-}
+    private String currency;
+    private String description;
+    private List<ItemDto> items;
 
+    @Data
+    public static class ItemDto {
+        private String productId;
+        private Integer quantity;
+    }
+}

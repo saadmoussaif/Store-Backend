@@ -22,7 +22,7 @@ public class OrderRequest {
 
     @NotBlank(message = "La ville est obligatoire")
     private String city;
-
+    private String paymentMethod;
     @NotBlank(message = "Le téléphone est obligatoire")
     @Pattern(regexp = "^(\\+212|0)[5-7][0-9]{8}$",
             message = "Numéro de téléphone marocain invalide")

@@ -9,5 +9,12 @@ public enum Category {
     ACCESSOIRES,
     ELECTRONIQUE,
     SPORT,
-    MAISON
+    MAISON,
+        TSHIRT,
+        HOODIE,
+        JACKET,
+        SHORT,
+        CAP,
+        SET
+
 }
