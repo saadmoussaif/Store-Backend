@@ -24,6 +24,7 @@ public class ProductResponse {
     private Category category;
     private String size;
     private String color;
+    private String brand;
     private boolean active;
     private LocalDateTime createdAt;
 }

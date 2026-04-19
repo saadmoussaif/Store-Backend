@@ -27,7 +27,9 @@ public class OrderRequest {
     @Pattern(regexp = "^(\\+212|0)[5-7][0-9]{8}$",
             message = "Numéro de téléphone marocain invalide")
     private String phone;
+    private String customerEmail;
 
+    private String customerName;
     @Data
     @NoArgsConstructor
     @AllArgsConstructor

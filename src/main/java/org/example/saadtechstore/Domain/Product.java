@@ -48,8 +48,12 @@ public class Product {
     @Enumerated(EnumType.STRING)
     private Category category;
 
+
     private String size;   // S, M, L, XL, XXL
+
     private String color;
+    @Column
+    private String brand;
 
     private boolean active = true;
 

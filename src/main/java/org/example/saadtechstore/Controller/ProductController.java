@@ -18,11 +18,12 @@ public class ProductController {
     private final ProductService productService;
 
     @GetMapping
-    public Page<ProductResponse> getAll(
+    public Page<ProductResponse> getAllProducts(
             @RequestParam(required = false) Category category,
             @RequestParam(required = false) String search,
+            @RequestParam(required = false) String brand,
             Pageable pageable) {
-        return productService.getAllProducts(category, search, pageable);
+        return productService.getAllProducts(category, search, brand, pageable);
     }
 
     @GetMapping("/{id}")

@@ -26,7 +26,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 public class OrderServiceImpl implements OrderService {
-
+    private final EmailService emailService;
     private final OrderRepository orderRepository;
     private final ProductRepository productRepository;
 
@@ -64,8 +64,12 @@ public class OrderServiceImpl implements OrderService {
 
         Order order = Order.builder()
                 .customerId("anonymous")
-                .customerEmail(req.getPhone() + "@saadstore.ma")
-                .customerName("Client")
+                .customerEmail(req.getCustomerEmail() != null
+                        ? req.getCustomerEmail()
+                        : req.getPhone() + "@saadstore.ma")
+                .customerName(req.getCustomerName() != null
+                        ? req.getCustomerName()
+                        : "Client")
                 .items(items)
                 .totalAmount(total)
                 .status(OrderStatut.PENDING)
@@ -76,6 +80,7 @@ public class OrderServiceImpl implements OrderService {
 
         items.forEach(i -> i.setOrder(order));
         Order saved = orderRepository.save(order);
+        emailService.sendOrderConfirmation(saved);
         log.info("Commande créée : {}", saved.getId());
         return toResponse(saved);
     }
@@ -134,6 +139,7 @@ public class OrderServiceImpl implements OrderService {
 
         return OrderResponse.builder()
                 .id(o.getId())
+
                 .customerEmail(o.getCustomerEmail())
                 .customerName(o.getCustomerName())
                 .totalAmount(o.getTotalAmount())

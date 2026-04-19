@@ -34,7 +34,7 @@ public class ProductRequest {
 
     @NotNull(message = "La catégorie est obligatoire")
     private Category category;
-
+    private String brand;
     private String size;
     private String color;
 }

@@ -8,12 +8,12 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-
 import java.util.List;
 
 @Repository
 public interface ProductRepository extends JpaRepository<Product, String> {
 
+    // ── Existantes ──────────────────────────────────────────
     Page<Product> findByActiveTrue(Pageable pageable);
 
     Page<Product> findByCategoryAndActiveTrue(
@@ -30,4 +30,14 @@ public interface ProductRepository extends JpaRepository<Product, String> {
 
     @Query("SELECT COUNT(p) FROM Product p WHERE p.active = true AND p.category = :category")
     long countByCategory(@Param("category") Category category);
+
+    // ── Nouvelles — brand ────────────────────────────────────
+    Page<Product> findByBrandContainingIgnoreCaseAndActiveTrue(
+            String brand, Pageable pageable);
+
+    Page<Product> findByCategoryAndBrandContainingIgnoreCaseAndActiveTrue(
+            Category category, String brand, Pageable pageable);
+
+    Page<Product> findByNameContainingIgnoreCaseOrBrandContainingIgnoreCaseAndActiveTrue(
+            String name, String brand, Pageable pageable);
 }
