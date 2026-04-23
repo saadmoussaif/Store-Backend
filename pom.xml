@@ -33,6 +33,14 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
+        <!-- Jackson JSR310 — pour LocalDateTime -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
+        </dependency>
+
+        <!-- RestTemplate est dans spring-web — déjà présent -->
+        <!-- Pas de dépendance supplémentaire nécessaire pour Mistral -->
 
         <dependency>
             <groupId>com.stripe</groupId>

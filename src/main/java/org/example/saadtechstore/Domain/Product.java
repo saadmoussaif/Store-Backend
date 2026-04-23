@@ -39,6 +39,8 @@ public class Product {
     @NotNull
     @DecimalMin("0.01")
     private BigDecimal price;
+    @DecimalMin("0.01")
+    private BigDecimal originalPrice;
 
     @NotNull
     private Integer stock;

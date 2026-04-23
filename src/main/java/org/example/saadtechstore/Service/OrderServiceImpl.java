@@ -20,24 +20,32 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @Transactional
 @RequiredArgsConstructor
 @Slf4j
 public class OrderServiceImpl implements OrderService {
+
     private final EmailService emailService;
     private final OrderRepository orderRepository;
     private final ProductRepository productRepository;
 
     @Override
     public OrderResponse createOrder(OrderRequest req) {
+
         List<OrderItem> items = new ArrayList<>();
         BigDecimal total = BigDecimal.ZERO;
 
+        // =========================
+        // 🔥 GENERATION ORDER NUMBER
+        // =========================
+        String orderNumber = generateOrderNumber();
+
         for (OrderRequest.ItemDto itemDto : req.getItems()) {
-            Product product = productRepository
-                    .findById(itemDto.getProductId())
+
+            Product product = productRepository.findById(itemDto.getProductId())
                     .orElseThrow(() -> new ResourceNotFoundException(
                             "Produit introuvable : " + itemDto.getProductId()));
 
@@ -56,13 +64,21 @@ public class OrderServiceImpl implements OrderService {
                     .quantity(itemDto.getQuantity())
                     .unitPrice(product.getPrice())
                     .build();
+
             items.add(item);
 
-            total = total.add(product.getPrice()
-                    .multiply(BigDecimal.valueOf(itemDto.getQuantity())));
+            total = total.add(
+                    product.getPrice().multiply(
+                            BigDecimal.valueOf(itemDto.getQuantity())
+                    )
+            );
         }
 
+        // =========================
+        // 🧾 CREATE ORDER
+        // =========================
         Order order = Order.builder()
+                .orderNumber(orderNumber)
                 .customerId("anonymous")
                 .customerEmail(req.getCustomerEmail() != null
                         ? req.getCustomerEmail()
@@ -79,29 +95,41 @@ public class OrderServiceImpl implements OrderService {
                 .build();
 
         items.forEach(i -> i.setOrder(order));
+
         Order saved = orderRepository.save(order);
+
         emailService.sendOrderConfirmation(saved);
-        log.info("Commande créée : {}", saved.getId());
+
+        log.info("📦 Commande créée : {} | {}", saved.getId(), saved.getOrderNumber());
+
         return toResponse(saved);
     }
 
+    // =========================
+    // 🔥 ORDER NUMBER GENERATOR
+    // =========================
+    private String generateOrderNumber() {
+        return "ORD-" + UUID.randomUUID()
+                .toString()
+                .replace("-", "")
+                .substring(0, 8)
+                .toUpperCase();
+    }
+
     @Override
-    public Page<OrderResponse> getMyOrders(
-            String customerId, Pageable pageable) {
-        return orderRepository
-                .findByCustomerId(customerId, pageable)
+    public Page<OrderResponse> getMyOrders(String customerId, Pageable pageable) {
+        return orderRepository.findByCustomerId(customerId, pageable)
                 .map(this::toResponse);
     }
 
     @Override
-    public Page<OrderResponse> getAllOrders(
-            OrderStatut status, Pageable pageable) {
+    public Page<OrderResponse> getAllOrders(OrderStatut status, Pageable pageable) {
         if (status != null) {
-            return orderRepository
-                    .findByStatus(status, pageable)
+            return orderRepository.findByStatus(status, pageable)
                     .map(this::toResponse);
         }
-        return orderRepository.findAll(pageable).map(this::toResponse);
+        return orderRepository.findAll(pageable)
+                .map(this::toResponse);
     }
 
     @Override
@@ -109,9 +137,11 @@ public class OrderServiceImpl implements OrderService {
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Commande introuvable : " + id));
+
         order.setStatus(status);
         orderRepository.save(order);
-        log.info("Statut commande {} mis à jour : {}", id, status);
+
+        log.info("📦 Statut commande {} mis à jour : {}", id, status);
     }
 
     @Override
@@ -119,13 +149,20 @@ public class OrderServiceImpl implements OrderService {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Commande introuvable : " + orderId));
+
         order.setStatus(OrderStatut.PAID);
         order.setCmiTransactionId(cmiTransactionId);
+
         orderRepository.save(order);
-        log.info("Paiement confirmé pour commande : {}", orderId);
+
+        log.info("💰 Paiement confirmé pour commande : {}", orderId);
     }
 
+    // =========================
+    // 🔄 MAPPING RESPONSE
+    // =========================
     private OrderResponse toResponse(Order o) {
+
         List<OrderResponse.ItemDto> itemDtos = o.getItems().stream()
                 .map(i -> OrderResponse.ItemDto.builder()
                         .productName(i.getProduct().getName())
@@ -139,7 +176,6 @@ public class OrderServiceImpl implements OrderService {
 
         return OrderResponse.builder()
                 .id(o.getId())
-
                 .customerEmail(o.getCustomerEmail())
                 .customerName(o.getCustomerName())
                 .totalAmount(o.getTotalAmount())

@@ -59,4 +59,7 @@ public class Order {
 
     @UpdateTimestamp
     private LocalDateTime updatedAt;
+
+    @Column(unique = true, nullable = false)
+    private String orderNumber;
 }
